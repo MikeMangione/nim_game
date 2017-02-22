@@ -10,15 +10,15 @@ import sys
 
 def print_rules():
     print '\n'
-    time.sleep(0.2)
+    time.sleep(0.1)
     print '\n'
-    time.sleep(0.2)
+    time.sleep(0.1)
     print '\n'
-    time.sleep(0.2)
+    time.sleep(0.1)
     print '\n'
-    time.sleep(0.2)
+    time.sleep(0.1)
     print '\n'
-    time.sleep(0.2)
+    time.sleep(0.1)
     print '   ▄██████▄     ▄████████   ▄▄▄▄███▄▄▄▄      ▄████████      '
     time.sleep(0.1)
     print '  ███    ███   ███    ███ ▄██▀▀▀███▀▀▀██▄   ███    ███      '
@@ -70,23 +70,23 @@ def print_rules():
     print '███   ███ ███  ███   ███   ███                              '
     time.sleep(0.1)
     print ' ▀█   █▀  █▀    ▀█   ███   █▀           '
-    time.sleep(2)
+    time.sleep(0.5)
     print("\nThis is a terrible NIM player\n")
-    time.sleep(2)
+    time.sleep(0.5)
     print("The objective is to remove the last chip from the board\n")
-    time.sleep(2)
+    time.sleep(0.5)
     print("Each turn, you may remove as many chips as you want from a single column\n")
-    time.sleep(2)
+    time.sleep(0.5)
     print("The game ends when all the chips are gone!\n")
-    time.sleep(2)
+    time.sleep(0.5)
     print '\n'
-    time.sleep(0.2)
+    time.sleep(0.1)
     print '\n'
-    time.sleep(0.2)
+    time.sleep(0.1)
     print '\n'
-    time.sleep(0.2)
+    time.sleep(0.1)
     print '\n'
-    time.sleep(0.2)
+    time.sleep(0.1)
 
 def y_n_answer(str):
     valid_yes_ans = ['y','yes','of course!']
@@ -148,7 +148,32 @@ def compy_turn(t,b_x):
                 break
     return t, x, temp_xor
 
-def play_nim():
+def player_turn(table,quit):
+    col = -1
+    while int(col) < 0 or len(table) - 1 < int(col):
+        col = raw_input("\nWhat column do you want to pick from? ")
+        if not col.isdigit():
+            if r_quit(str(col)):
+                quit, loss = True, r_quit_routine()
+                break
+            else:
+                print '\nplease choose a row digit'
+                col = -1
+    if quit:
+        return 0,0,quit
+    count = 0
+    while int(count) == 0 or table[int(col)] < int(count):
+        count = raw_input("\nHow many ord(48) ASCII characters would you like to remove? ")
+        if not count.isdigit():
+            if r_quit(str(count)):
+                quit, loss = True, r_quit_routine()
+                break
+            else:
+                print '\nplease choose a digit'
+                count = 0
+    return col, count, quit
+
+def play_nim(c_v_C):
     quit, loss = False, False
     cols = random.randint(2,10)
     table = []
@@ -158,50 +183,42 @@ def play_nim():
     while sum(table) > 0:
         bit_xor = calc_table_xor(table)
         print "\nTable XOR Value:",bin(bit_xor),bit_xor
-        col = -1
-        while int(col) < 0 or len(table) - 1 < int(col):
-            col = raw_input("\nWhat column do you want to pick from? ")
-            if not col.isdigit():
-                if r_quit(str(col)):
-                    quit, loss = True, r_quit_routine()
-                    break
-                else:
-                    print '\nplease choose a row digit'
-                    col = -1
+        if c_v_c:
+            table, col, count = compy_turn(table,bit_xor)
+            print "\nComputer 1 changed column",col,"to",count
+        else:
+            col, count, quit = player_turn(table,quit)
+            table[int(col)] += -1 * int(count)
         if quit:
             break
-        count = 0
-        while int(count) == 0 or table[int(col)] < int(count):
-            count = raw_input("\nHow many ord(48) ASCII characters would you like to remove? ")
-            if not count.isdigit():
-                if r_quit(str(count)):
-                    quit, loss = True, r_quit_routine()
-                    break
-                else:
-                    print '\nplease choose a digit'
-                    count = 0
-        if quit:
-            break
-        table[int(col)] += -1 * int(count)
+        print_table(table)
         if sum(table) == 0:
             break
         bit_xor = calc_table_xor(table)
         print "\nTable XOR Value:",bin(bit_xor),bit_xor
         table, rm_column, rm_count = compy_turn(table,bit_xor)
-        print "\nThe computer changed column",rm_column,"to",rm_count
+        if c_v_c:
+            print "\nComputer 2 changed column",rm_column,"to",rm_count
+        else:
+            print "\nThe computer changed column",rm_column,"to",rm_count
         print_table(table)
         if sum(table) == 0:
             loss = True
             break
-    if loss:
+    if loss and not c_v_c:
         print '\nOh no! You lost. There\'s always next time.'
-        time.sleep(0.2)
+        time.sleep(0.1)
         print '(like you\'ll do better)'
-    else:
+    elif not c_v_c:
         print "\nCool, you won!"
+    elif loss:
+        print "\n Computer Player 2 wins."
+    else:
+        print "\n Computer Player 1 wins."
 
 print_rules()
 desire_to_play = y_n_answer(raw_input("\nWould you like to play? (y = yes) "))
 while desire_to_play:
-    play_nim()
+    c_v_c = y_n_answer(raw_input("\nComputer v. Computer? "))
+    play_nim(c_v_c)
     desire_to_play = y_n_answer(raw_input("\nWould you like to play again? "))
