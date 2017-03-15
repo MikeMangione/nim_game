@@ -133,7 +133,9 @@ def compy_turn(t):
             break
     if mod_temp != -1:
         sub = t[t.index(mod_temp)] - temp[x]
+        x_temp = t.index(mod_temp)
         t[t.index(mod_temp)] = temp[x]
+        x = x_temp
     else:
         for x in range(0,len(t)):
             if t[x] != 0:
@@ -218,7 +220,7 @@ def play_nim(C_V_C,player_number):
             else:
                 table, rm_column, rm_count = compy_turn(table)
                 print "\nThe computer removed",rm_count,"from column",rm_column
-                print_table(table)
+                print_table(table,calc_table_xor(table))
                 if sum(table) == 0:
                     loss = True
                     break
